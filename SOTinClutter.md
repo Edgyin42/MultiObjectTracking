@@ -292,3 +292,131 @@ $$
 $$
 = P^D(x) \, g_k(z^\theta \mid x) \frac{\exp(-\lambda_c)}{m!} \prod_{i=1}^{m} \lambda_c(z^i)
 $$
+
+
+Adding all together, 
+* Putting these equations together,
+
+$$
+p(Z \mid x) = \sum_{\theta=0}^{m} p(Z, m, \theta \mid x)
+$$
+
+$$
+= (1 - P^D(x)) \frac{\exp(-\lambda_c)}{m!} \prod_{i=1}^{m} \lambda_c(z^i) + \sum_{\theta=1}^{m} P^D(x) \, g_k(z^\theta \mid x) \frac{\exp(-\lambda_c)}{\lambda_c(z^\theta)} \prod_{i=1}^{m} \lambda_c(z^i)
+$$
+
+$$
+= \left[ (1 - P^D(x)) + P^D(x) \sum_{\theta=1}^{m} \frac{g_k(z^\theta \mid x)}{\lambda_c(z^\theta)} \right] \frac{\exp(-\lambda_c)}{m!} \prod_{i=1}^{m} \lambda_c(z^i)
+$$
+
+### Normalizing the posterior mixture of densities: 
+**Normalizing a mixture**
+
+* If 
+
+$$
+p(x) \propto \sum_{\theta=0}^{m} g_{\theta}(x),
+$$
+
+it follows that
+
+$$
+p(x) = \sum_{\theta=0}^{m} w_{\theta} p_{\theta}(x),
+$$
+
+where $ p_{\theta}(x) \propto g_{\theta}(x) $ and $ w_{\theta} \propto \int g_{\theta}(x) \, dx $.
+
+* **Note:** $ w_{\theta} $ should be normalized to become a pmf.
+
+* Specifically, we can set
+
+$$
+\tilde{w}_{\theta} = \int g_{\theta}(x) \, dx,
+$$
+
+$$
+p_{\theta}(x) = \frac{g_{\theta}(x)}{\tilde{w}_{\theta}},
+$$
+
+$$
+w_{\theta} = \frac{\tilde{w}_{\theta}}{\sum_{i} \tilde{w}_{i}}.
+$$
+
+### General update equation: 
+* **Measurement model:**
+
+$$
+p(Z \mid x) = \left[ (1 - P^D(x)) + P^D(x) \sum_{\theta=1}^{m} \frac{g(z^\theta \mid x)}{\lambda_c(z^\theta)} \right] \frac{\exp(-\lambda_c)}{m!} \prod_{i=1}^{m} \lambda_c(z^i)
+$$
+
+* **Posterior density:**
+
+$$
+p(x \mid Z) \propto p(x) p(Z \mid x)
+$$
+
+$$
+\propto p(x) \left[ (1 - P^D(x)) + P^D(x) \sum_{\theta=1}^{m} \frac{g(z^\theta \mid x)}{\lambda_c(z^\theta)} \right]
+$$
+
+**Posterior probabilities and densities**
+
+* We get $ p(x \mid Z) = \sum_{\theta} w_\theta p_\theta(x) $, where
+
+   - $ \theta = 0 $
+     - Object is undetected
+     - 
+       $$
+       w_0 = \int p(x) (1 - P^D(x)) \, dx
+       $$
+
+       $$
+       p_0(x) = \frac{p(x) (1 - P^D(x))}{\int p(x') (1 - P^D(x')) \, dx'}
+       $$
+
+   - $ \theta \in \{1, 2, \dots, m\} $
+     - $ z^\theta $ is object detection
+     - 
+       $$
+       w_\theta = \frac{1}{\lambda_c(z^\theta)} \int p(x) P^D(x) g(z^\theta \mid x) \, dx
+       $$
+
+       $$
+       p_\theta(x) = \frac{p(x) P^D(x) g(z^\theta \mid x)}{\int p(x') P^D(x') g(z^\theta \mid x') \, dx'}
+       $$
+
+   and $ w_\theta \propto w_\theta $
+
+
+* Recall the object measurement model
+
+$$
+p(O \mid x) = 
+\begin{cases} 
+1 - P^D(x) & \text{if } O = [] \\
+P^D(x) g(o \mid x) & \text{if } O = o 
+\end{cases}
+$$
+
+* Given $ O $, we get
+
+$$
+p(x \mid O) \propto 
+\begin{cases} 
+p(x) (1 - P^D(x)) & \text{if } O = [] \\
+p(x) P^D(x) g(o \mid x) & \text{if } O = o
+\end{cases}
+$$
+
+* By comparison,
+
+$$
+p_\theta(x) \propto 
+\begin{cases} 
+p(x) (1 - P^D(x)) & \text{if } \theta = 0 \\
+p(x) P^D(x) g(z^\theta \mid x) & \text{if } \theta \in \{1, 2, \dots, m\}
+\end{cases}
+$$
+
+**Note:** $ p_\theta(x) $ is identical to $ p(x \mid O) $, with $ O $ defined by $ \theta $ and $ Z $.
+
