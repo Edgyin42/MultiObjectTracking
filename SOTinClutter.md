@@ -5,4 +5,19 @@
 3. Unknown data association
 
 ## Measurement models: 
-The object is detected with probability $p^D(x_k)$, and then generates a measurement from p(o_k|x_k) = g(o_k|x_k)
+* The object is detected with probability $p^D(x_k)$, and then generates a measurement from $p(o_k|x_k) = g(o_k|x_k)$
+* We use a matrix to represent object detections: 
+$$O_k = 
+  {
+    [1]  & if object is undetected, \\
+    [o_k] & if object is detected.
+  }
+$$
+* We use $|O_k|$ to denote the number of column vectors in $O_k$. 
+* Given x_k, $|O_k|$ is Bernoulli distributed: 
+$$|O_k| = 
+  {
+    1 &  with probability p^D(x_k) \\
+    0  & with probability 1 - p^D(x_k). 
+  }
+$$
