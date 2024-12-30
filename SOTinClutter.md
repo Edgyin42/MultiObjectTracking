@@ -420,3 +420,327 @@ $$
 
 **Note:** $ p_\theta(x) $ is identical to $ p(x \mid O) $, with $ O $ defined by $ \theta $ and $ Z $.
 
+## Conceptual soluttion: 
+### Main Result
+
+- **Suppose**:
+  $$
+  p(x_{k-1} | Z_{1:k-1}) = \sum_{\theta_{1:k-1}} w^{\theta_{1:k-1}} p^{\theta_{1:k-1}}_{k-1|k-1}(x_{k-1}),
+  $$
+  where:
+  $$
+  w^{\theta_{1:k-1}} = \Pr[\theta_{1:k-1} | Z_{1:k-1}],
+  $$
+  and:
+  $$
+  p^{\theta_{1:k-1}}_{k-1|k-1}(x_{k-1}) = p(x_{k-1} | \theta_{1:k-1}, Z_{1:k-1}).
+  $$
+
+- **We can then express the predicted and updated densities as**:
+
+  **Predicted density**:
+  $$
+  p(x_k | Z_{1:k-1}) = \sum_{\theta_{1:k-1}} w^{\theta_{1:k-1}} p^{\theta_{1:k-1}}_{k|k-1}(x_k),
+  $$
+
+  **Updated density**:
+  $$
+  p(x_k | Z_{1:k}) = \sum_{\theta_{1:k}} w^{\theta_{1:k}} p^{\theta_{1:k}}_{k|k}(x_k).
+  $$
+### Prediction Step
+
+- **Given**:
+  $$
+  p(x_{k-1} | Z_{1:k-1}) = \sum w^{(\theta_{1:k-1})} \, \rho_{k-1|k-1}^{(\theta_{1:k-1})}(x_{k-1}),
+  $$
+
+- Then:
+  $$
+  p(x_k | Z_{1:k-1}) = \int p(x_k | Z_{1:k-1}, x_{k-1}) \, p(x_{k-1} | Z_{1:k-1}) \, dx_{k-1}.
+  $$
+
+  Expanding:
+  $$
+  p(x_k | Z_{1:k-1}) = \sum w^{(\theta_{1:k-1})} \int p(x_k | Z_{1:k-1}, x_{k-1}) \, \rho_{k-1|k-1}^{(\theta_{1:k-1})}(x_{k-1}) \, dx_{k-1}.
+  $$
+
+  Simplifies to:
+  $$
+  p(x_k | Z_{1:k-1}) = \sum w^{(\theta_{1:k-1})} \, \rho_{k|k-1}^{(\theta_{1:k-1})}(x_k).
+  $$
+
+- **Key Points**:
+  - **Weights remain unchanged**.
+  - Perform the **standard prediction of densities** for each hypothesis.
+
+
+### Update Step 
+
+**Measurement Model**
+
+The measurement model is given as:
+$$
+p(z_k | x_k) = \frac{\left[(1 - P^D(x_k)) + P^D(x_k) \sum_{\theta=1}^{m_k} \frac{g_k(z^\theta | x_k)}{\lambda_c(z^\theta)}\right] \exp(-\lambda_c)}{m_k!} \prod_{i=1}^{m_k} \lambda_c(z^i),
+$$
+where:
+- $ P^D(x_k) $: Probability of detection.
+- $ g_k(z^\theta | x_k) $: Measurement likelihood.
+- $ \lambda_c(z^\theta) $: Clutter intensity.
+- $ m_k $: Number of measurements.
+
+---
+
+### Recursive Expression
+
+For:
+$$
+p(x_k | Z_{1:k-1}) = \sum_{\theta_{1:k-1}} w^{(\theta_{1:k-1})} \, \rho_{k-1|k-1}^{(\theta_{1:k-1})}(x_k),
+$$
+
+this implies that:
+$$
+p(x_k | Z_{1:k}) \propto \sum_{\theta_{1:k-1}} w^{(\theta_{1:k-1})} \, \rho_{k-1|k-1}^{(\theta_{1:k-1})}(x_k) (1 - P^D(x_k))
+$$
+
+$$
++ \sum_{\theta_{1:k-1}} \sum_{\theta=1}^{m_k} \frac{1}{\lambda_c(z^\theta)} w^{(\theta_{1:k-1})} \, \rho_{k-1|k-1}^{(\theta_{1:k-1})}(x_k) P^D(x_k) g_k(z^\theta | x_k).
+$$
+
+## Posterior Density
+
+The posterior density is given as:
+$$
+p(x_k | Z_{1:k}) = \sum_{\theta_{1:k-1}} w^{(\theta_{1:k-1})} \rho_{k-1|k-1}^{(\theta_{1:k-1})}(x_k) (1 - P^D(x_k))
+$$
+$$
++ \sum_{\theta_{1:k-1}} \sum_{\theta=1}^{m_k} \frac{1}{\lambda_c(z^\theta)} w^{(\theta_{1:k-1})} \rho_{k-1|k-1}^{(\theta_{1:k-1})}(x_k) P^D(x_k) g_k(z^\theta | x_k).
+$$
+
+---
+
+## Posterior Probabilities and Densities
+
+We obtain:
+$$
+p(x_k | Z_{1:k}) = \sum_{\theta_{1:k}} w_k^{(\theta_{1:k})} p_k^{(\theta_{1:k})}(x_k),
+$$
+where $ w_k^{(\theta_{1:k})} \propto w^{(\theta_{1:k})} $ and:
+
+### Case 1: $\theta_k = 0$ (Object is undetected)
+$$
+w_k^{(\theta_{1:k})} = w^{(\theta_{1:k-1})} \int \rho_{k-1|k-1}^{(\theta_{1:k-1})}(x_k) (1 - P^D(x_k)) dx_k,
+$$
+$$
+p_k^{(\theta_{1:k})}(x_k) = \frac{\rho_{k-1|k-1}^{(\theta_{1:k-1})}(x_k) (1 - P^D(x_k))}{\int \rho_{k-1|k-1}^{(\theta_{1:k-1})}(x_k) (1 - P^D(x_k)) dx_k}.
+$$
+
+---
+
+### Case 2: $\theta_k \in \{1, 2, \dots, m_k\}$ (Object detection, $z^{\theta_k}$)
+$$
+w_k^{(\theta_{1:k})} = \frac{1}{\lambda_c(z^{\theta_k})} w^{(\theta_{1:k-1})} \int \rho_{k-1|k-1}^{(\theta_{1:k-1})}(x_k) P^D(x_k) g_k(z^{\theta_k} | x_k) dx_k,
+$$
+$$
+p_k^{(\theta_{1:k})}(x_k) = \frac{\rho_{k-1|k-1}^{(\theta_{1:k-1})}(x_k) P^D(x_k) g_k(z^{\theta_k} | x_k)}{\int \rho_{k-1|k-1}^{(\theta_{1:k-1})}(x_k) P^D(x_k) g_k(z^{\theta_k} | x_k) dx_k}.
+$$
+
+
+---
+
+### Key Notes
+
+- For every pair of hypotheses, $(\theta_{1:k-1}, \theta_k)$, a **new hypothesis** is generated.
+- This new hypothesis is indexed using the vector $\theta_{1:k}$, where $\theta_{1:k} = (\theta_{1:k-1}, \theta_k)$.
+
+
+## Closed-Form Expressions
+
+Given:
+$$
+\rho_{k-1|k-1}^{(\theta_{1:k-1})}(x) = N(x; x_{k-1|k-1}^{(\theta_{1:k-1})}, P_{k-1|k-1}^{(\theta_{1:k-1})}),
+$$
+$$
+P^D(x) = P^D,
+$$
+$$
+g_k(o_k | x_k) = N(o_k; H_k x_k, R_k),
+$$
+the posterior density $ p_k|k^{(\theta_{1:k})}(x) $ and weights $ w_k^{(\theta_{1:k})} $ are:
+
+---
+
+### Posterior Density
+$$
+p_k|k^{(\theta_{1:k})}(x) =
+\begin{cases} 
+N(x; x_{k-1|k-1}^{(\theta_{1:k-1})}, P_{k-1|k-1}^{(\theta_{1:k-1})}) & \text{if } \theta_k = 0, \\
+N(x; x_{k|k}^{(\theta_{1:k})}, P_{k|k}^{(\theta_{1:k})}) & \text{if } \theta_k \in \{1, 2, \dots, m_k\}.
+\end{cases}
+$$
+
+---
+
+### Weights
+$$
+w_k^{(\theta_{1:k})} =
+\begin{cases}
+w_{k-1}^{(\theta_{1:k-1})} (1 - P^D) & \text{if } \theta_k = 0, \\
+\frac{w_{k-1}^{(\theta_{1:k-1})} P^D}{\lambda_c(z^{\theta_k})} N(z^{\theta_k}; z_{k-1|k-1}^{(\theta_{1:k-1})}, S_{k-1|k-1}^{(\theta_{1:k-1})})^{-1} & \text{if } \theta_k \in \{1, 2, \dots, m_k\}.
+\end{cases}
+$$
+
+---
+
+### Definitions
+- $\ x_{k|k}^{(\theta_{1:k})} $: Posterior mean given $ Z_{1:k} $ and $ \theta_{1:k} $.
+- $ P_{k|k}^{(\theta_{1:k})} $: Posterior covariance given $ Z_{1:k} $ and $ \theta_{1:k} $.
+- $ z_{k-1|k-1}^{(\theta_{1:k-1})} $: Predicted object measurement mean assuming the predicted density $ p_{k-1|k-1}^{(\theta_{1:k-1})}(x) $.
+- $ S_{k-1|k-1}^{(\theta_{1:k-1})} $: Predicted object measurement covariance assuming the predicted density $ p_{k-1|k-1}^{(\theta_{1:k-1})}(x) $.
+
+
+## Nearest neighbour algorithm: 
+### Basic Idea
+
+- Prune all hypotheses except the most probable one.
+
+### Algorithm: The Nearest Neighbor (NN) Filtering Update
+
+1. **Compute** $ w_k^\theta $, for $ \theta = 0, 1, \dots, m_k $.
+
+2. **Find** 
+   $$
+   \theta_k^p = \arg\max_\theta w_k^\theta.
+   $$
+
+3. **Compute** $ x_k^{\theta_k^p} $ and $ P_k^{\theta_k^p} $.
+
+4. **Set** 
+   $$
+   x_{k|k}^{\text{NN}} = x_k^{\theta_k^p} \quad \text{and} \quad P_{k|k}^{\text{NN}} = P_k^{\theta_k^p}.
+   $$
+
+### Note:
+We then assume that:
+$$
+p(x_{k|k}^{\text{NN}} | Z_{1:k}) = \mathcal{N}(x_k; x_{k|k}^{\text{NN}}, P_{k|k}^{\text{NN}}).
+$$
+**PROS**: 
+* Fast to implement 
+* Works well in simple scenario
+
+**CONS**: 
+* Ignore uncertainties which increase the risk of losing track of object 
+## Probabilistic Data Association Filtering
+Ideas: Approximate the posterior with the same mean and covariance as $p^{PDA}(x_k|Z_{1:k})$, where 
+The posterior is given by:
+
+$$
+p^{\text{PDA}}(x_k | Z_{1:k}) = \sum_{\theta=0}^{m_k} w_k^{\theta} \, p_k^{\theta_k}(x_k),
+$$
+
+where:
+
+$$
+p_k^{\theta_k}(x_k) = \mathcal{N}(x_k; x_k^{\theta_k}, P_k^{\theta_k}),
+$$
+
+and:
+- $ w_k^{\theta} $ are the weights associated with each hypothesis $\theta$,
+- $ x_k^{\theta_k} $ and $ P_k^{\theta_k} $ are the mean and covariance of the Gaussian distribution for hypothesis $\theta$. 
+
+## Algorithm 1: The PDA Filtering Update
+
+1. **Compute** $ w_k^\theta $, $ x_k^\theta $, and $ P_k^\theta $ for $\theta_k = 0, 1, \dots, m_k$.
+
+2. **Set**:
+   $$
+   x_{k|k}^{\text{PDA}} = \sum_{\theta_k=0}^{m_k} w_k^\theta \, x_k^\theta.
+   $$
+
+3. **Compute**:
+   $$
+   P_{k|k}^{\text{PDA}} = \sum_{\theta_k=0}^{m_k} w_k^\theta \, P_k^\theta 
+   + \sum_{\theta_k=0}^{m_k} w_k^\theta \, (x_k^\theta - x_{k|k}^{\text{PDA}}) (x_k^\theta - x_{k|k}^{\text{PDA}})^\top.
+   $$
+
+### Explanation:
+- $ w_k^\theta $: Weight associated with hypothesis $\theta_k$.
+- $ x_k^\theta $: Mean of the Gaussian for hypothesis $\theta_k$.
+- $ P_k^\theta $: Covariance of the Gaussian for hypothesis $\theta_k$.
+- $ x_{k|k}^{\text{PDA}} $: Posterior mean after probabilistic data association.
+- $ P_{k|k}^{\text{PDA}} $: Posterior covariance after probabilistic data association.
+
+**PROS**: 
+* Fast to implement 
+* Works well in simple scenario
+* Acknowledges uncertainties slightly better than NN
+
+**CONS**: 
+* Perform poorly in complicated scenarios. 
+
+
+## Gaussian Sum Filtering 
+Basic idea: A sum of a few components that contribute significantly to the posterior 
+
+3 ways to choose the components to add into the posterior. <br> 
+
+1. Set the cap for the weight. If below that threshold, we wouldn't add the hypthesis to the posterior. 
+2. Merging similar components 
+3. Set the cap for the number of hypotheses. 
+
+We can combine all of this in different ways. 
+
+## Estimation Techniques
+
+### Minimum Mean Square Error (MMSE) Estimation
+- The **posterior mean**:
+  $$
+  \bar{x}_{k|k} = \mathbb{E}[X | Z_{1:k}] = \sum_h w_k^h x_{k|k}^h
+  $$
+  minimizes the **MMSE**:
+  $$
+  \mathbb{E} \left[ (X - \bar{x}_{k|k})^\top (X - \bar{x}_{k|k}) \,|\, Z_{1:k} \right].
+  $$
+
+---
+
+### Most Probable Hypothesis Estimation
+- For **multi-modal densities**, we may prefer the **most probable hypothesis**:
+  $$
+  h^* = \arg \max_h w_k^h
+  $$
+  and the corresponding estimate:
+  $$
+  \hat{x}_{k|k} = x_{k|k}^{h^*}.
+  $$
+
+
+**Pros and cons**
+
+++ Significantly more accurate than NN and PDA. <br>
+++ Complexity can be adjusted to computational resources. <br>
+-- More complicated to implement than NN/PDA. <br>
+-- More computationally demanding to run than NN/PDA. <br>
+
+• **Note:** even though GSFs looks much more accurate than NN and PDA, the difference is mostly noticeable in medium-difficult settings.
+
+
+## Gating: 
+
+* Is a technique to disregard measurements without computing the weights. 
+* In Gaussian, prefer using ellipsoidal gate 
+* Need to balance the threshold G
+
+- If $ G $ is small, there is a **high probability** that the object detection is outside the gate.
+
+- Given $ h_{k-1} $ and $ \theta_k $, where $ \theta_k > 0 $, the **probability** that the object measurement is outside the gate is:
+  $$
+  P_G = \Pr \left[ d^2_{k-1, \theta_k}> G | h_{k-1, \theta_k} \right].
+  $$
+
+- It can be shown that:
+  $$
+  d^2_{k-1, \theta_k} | h_{k-1, \theta_k}\sim \chi^2(n_z).
+  $$
+    where $n_z$ is the dimension of measurement. 
+- A common strategy is to set a **desired value** for $ P_G $, such as $ 99.5\% $, and use the **cumulative distribution function (CDF)** of $ \chi^2(n_z) $ to determine $ G $.
